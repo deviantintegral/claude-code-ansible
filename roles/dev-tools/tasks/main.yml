@@ -79,7 +79,7 @@
 
 - name: Deploy Cloudflare APT repository
   ansible.builtin.copy:
-    content: "deb [signed-by=/etc/apt/keyrings/cloudflare.gpg] https://pkg.cloudflare.com/cloudflared any-version main\n"
+    content: "deb [signed-by=/etc/apt/keyrings/cloudflare.gpg] https://pkg.cloudflare.com/cloudflared any main\n"
     dest: /etc/apt/sources.list.d/cloudflare.list
     owner: root
     group: root
