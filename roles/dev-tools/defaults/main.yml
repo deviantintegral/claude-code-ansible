@@ -1,0 +1,10 @@
+---
+devtools_docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+devtools_docker_registry_proxy_host: "docker-registry-proxy.lan"
+devtools_docker_registry_proxy_port: 3128
+devtools_user_name: claude

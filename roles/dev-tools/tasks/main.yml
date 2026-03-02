@@ -1,0 +1,134 @@
+---
+# Docker CE
+- name: Ensure /etc/apt/keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download Docker GPG key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/debian/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+
+- name: Deploy Docker APT repository
+  ansible.builtin.copy:
+    content: |
+      Types: deb
+      URIs: https://download.docker.com/linux/debian
+      Suites: trixie
+      Components: stable
+      Signed-By: /etc/apt/keyrings/docker.asc
+    dest: /etc/apt/sources.list.d/docker.sources
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install Docker packages
+  ansible.builtin.apt:
+    name: "{{ devtools_docker_packages }}"
+    state: present
+    update_cache: true
+
+- name: Enable and start Docker service
+  ansible.builtin.systemd_service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add claude user to docker group
+  ansible.builtin.user:
+    name: "{{ devtools_user_name }}"
+    groups: docker
+    append: true
+
+# ddev
+- name: Download ddev GPG key
+  ansible.builtin.get_url:
+    url: https://pkg.ddev.com/apt/gpg.key
+    dest: /tmp/ddev-gpg.key
+    mode: "0644"
+
+- name: Dearmor ddev GPG key
+  ansible.builtin.command:
+    cmd: gpg --batch --yes --dearmor -o /etc/apt/keyrings/ddev.gpg /tmp/ddev-gpg.key
+  args:
+    creates: /etc/apt/keyrings/ddev.gpg
+
+- name: Deploy ddev APT repository
+  ansible.builtin.copy:
+    content: "deb [signed-by=/etc/apt/keyrings/ddev.gpg] https://pkg.ddev.com/apt/ * *\n"
+    dest: /etc/apt/sources.list.d/ddev.list
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install ddev
+  ansible.builtin.apt:
+    name: ddev
+    state: present
+    update_cache: true
+
+# Cloudflared
+- name: Download Cloudflare GPG key
+  ansible.builtin.get_url:
+    url: https://pkg.cloudflare.com/cloudflare-main.gpg
+    dest: /etc/apt/keyrings/cloudflare.gpg
+    mode: "0644"
+
+- name: Deploy Cloudflare APT repository
+  ansible.builtin.copy:
+    content: "deb [signed-by=/etc/apt/keyrings/cloudflare.gpg] https://pkg.cloudflare.com/cloudflared any-version main\n"
+    dest: /etc/apt/sources.list.d/cloudflare.list
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install cloudflared
+  ansible.builtin.apt:
+    name: cloudflared
+    state: present
+    update_cache: true
+
+# uv
+- name: Install uv
+  ansible.builtin.shell:
+    cmd: set -o pipefail && curl -LsSf https://astral.sh/uv/install.sh | sh
+    executable: /bin/bash
+  become: true
+  become_user: "{{ devtools_user_name }}"
+  args:
+    creates: "/home/{{ devtools_user_name }}/.local/bin/uv"
+
+# mkcert CA
+- name: Install mkcert CA
+  ansible.builtin.command:
+    cmd: mkcert -install
+  become: true
+  become_user: "{{ devtools_user_name }}"
+  args:
+    creates: "/home/{{ devtools_user_name }}/.local/share/mkcert/rootCA.pem"
+
+# Docker Registry Proxy
+- name: Download Docker registry proxy CA certificate
+  ansible.builtin.get_url:
+    url: "http://{{ devtools_docker_registry_proxy_host }}:{{ devtools_docker_registry_proxy_port }}/ca.crt"
+    dest: /usr/local/share/ca-certificates/docker_registry_proxy.crt
+    mode: "0644"
+  notify: Update CA certificates
+
+- name: Ensure Docker systemd override directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/docker.service.d/
+    state: directory
+    mode: "0755"
+
+- name: Deploy Docker proxy configuration
+  ansible.builtin.template:
+    src: docker-proxy.conf.j2
+    dest: /etc/systemd/system/docker.service.d/http-proxy.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd

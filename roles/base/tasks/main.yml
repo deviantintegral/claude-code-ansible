@@ -1,0 +1,31 @@
+---
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ base_hostname }}"
+
+- name: Deploy /etc/hosts
+  ansible.builtin.template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Generate locale
+  community.general.locale_gen:
+    name: "{{ base_locale }}"
+    state: present
+
+- name: Set default locale
+  ansible.builtin.copy:
+    dest: /etc/default/locale
+    content: "LANG={{ base_locale }}\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: present
+    update_cache: true

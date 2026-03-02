@@ -1,0 +1,7 @@
+[user]
+	name = {{ user_git_user_name }}
+	email = {{ user_git_user_email }}
+[push]
+	autoSetupRemote = true
+[includeIf "gitdir:~/lullabot/"]
+	path = ~/.gitconfig-lullabot

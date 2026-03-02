@@ -1,0 +1,31 @@
+---
+- name: Install Samba packages
+  ansible.builtin.apt:
+    name:
+      - samba
+      - samba-common-bin
+    state: present
+    update_cache: true
+
+- name: Deploy smb.conf
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart smbd
+
+- name: Set Samba password for {{ samba_user }}
+  ansible.builtin.shell:
+    cmd: >
+      printf '%s\n%s\n' '{{ user_password }}' '{{ user_password }}'
+      | smbpasswd -s -a {{ samba_user }}
+  changed_when: true
+  no_log: true
+
+- name: Enable and start smbd
+  ansible.builtin.systemd_service:
+    name: smbd
+    state: started
+    enabled: true

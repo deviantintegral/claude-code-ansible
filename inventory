@@ -1,0 +1,1 @@
+claude.lan ansible_host=claude.lan ansible_user=debian

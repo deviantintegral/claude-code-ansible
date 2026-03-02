@@ -1,0 +1,25 @@
+---
+- name: Create ~/.claude directory
+  ansible.builtin.file:
+    path: /home/claude/.claude
+    state: directory
+    owner: claude
+    group: claude
+    mode: "0755"
+
+- name: Deploy ~/.claude/settings.json from template
+  ansible.builtin.template:
+    src: claude-settings.json.j2
+    dest: /home/claude/.claude/settings.json
+    owner: claude
+    group: claude
+    mode: "0644"
+
+- name: Install Claude Code using the official installer
+  ansible.builtin.shell:
+    cmd: set -o pipefail && curl -fsSL https://claude.ai/install.sh | sh
+    executable: /bin/bash
+  become: true
+  become_user: claude
+  args:
+    creates: /home/claude/.local/bin/claude

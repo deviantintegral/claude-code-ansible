@@ -1,0 +1,10 @@
+---
+- name: Provision Claude Code development VM
+  hosts: all
+  become: true
+  roles:
+    - base
+    - user
+    - samba
+    - dev-tools
+    - claude-code

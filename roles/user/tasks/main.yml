@@ -1,0 +1,91 @@
+---
+- name: Generate a secure random password
+  ansible.builtin.set_fact:
+    user_password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits', 'punctuation'], length=24) }}"
+
+- name: Create user {{ user_name }}
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    shell: "{{ user_shell }}"
+    create_home: true
+    groups: sudo
+    append: true
+    password: "{{ user_password | password_hash('sha512') }}"
+
+- name: Deploy sudoers file for passwordless sudo
+  ansible.builtin.copy:
+    content: "%sudo ALL=(ALL:ALL) NOPASSWD: ALL\n"
+    dest: /etc/sudoers.d/nopasswd-sudo
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: Ensure ~/.ssh directory exists
+  ansible.builtin.file:
+    path: "/home/{{ user_name }}/.ssh"
+    state: directory
+    mode: "0700"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+
+- name: Fetch SSH authorized_keys from GitHub
+  ansible.posix.authorized_key:
+    user: "{{ user_name }}"
+    key: "{{ user_github_keys_url }}"
+    exclusive: false
+
+- name: Deploy ~/.ssh/rc
+  ansible.builtin.template:
+    src: ssh_rc.j2
+    dest: "/home/{{ user_name }}/.ssh/rc"
+    mode: "0755"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+
+- name: Deploy ~/.tmux.conf
+  ansible.builtin.template:
+    src: tmux.conf.j2
+    dest: "/home/{{ user_name }}/.tmux.conf"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0644"
+
+- name: Deploy ~/.gitconfig
+  ansible.builtin.template:
+    src: gitconfig.j2
+    dest: "/home/{{ user_name }}/.gitconfig"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0644"
+
+- name: Deploy ~/.gitconfig-lullabot
+  ansible.builtin.template:
+    src: gitconfig-lullabot.j2
+    dest: "/home/{{ user_name }}/.gitconfig-lullabot"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0644"
+
+- name: Create ~/lullabot directory
+  ansible.builtin.file:
+    path: "/home/{{ user_name }}/lullabot"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0755"
+
+- name: Deploy bashrc customizations
+  ansible.builtin.blockinfile:
+    path: "/home/{{ user_name }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    block: |
+      export PATH="$HOME/.local/bin:$PATH"
+      export IS_SANDBOX=1
+      alias claude="claude --dangerously-skip-permissions"
+      export VISUAL=vim
+      export EDITOR=vim
+
+- name: Display generated password for {{ user_name }}
+  ansible.builtin.debug:
+    msg: >-
+      Password for user '{{ user_name }}': {{ user_password }}
+      (use for SSH and Samba access)
