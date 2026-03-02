@@ -12,7 +12,7 @@ Ansible playbook to provision a Debian 13 (trixie) VM as a Claude Code developme
 
 1. Edit `inventory` and replace `CHANGE_ME` with the target VM's IP address:
    ```
-   claude.lan ansible_host=192.168.1.100 ansible_user=root
+   claude.lan ansible_host=192.168.1.100 ansible_user=debian
    ```
 
 2. Run the playbook:
