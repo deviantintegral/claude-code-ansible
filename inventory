@@ -1,1 +1,2 @@
-claude.lan ansible_host=claude.lan ansible_user=debian
+# Replace with your VM's hostname/IP
+claude.example ansible_host=CHANGE_ME ansible_user=debian
