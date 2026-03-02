@@ -2,29 +2,31 @@ base_hostname: claude
 base_domain: lan
 base_locale: en_CA.UTF-8
 base_packages:
-  - vim
-  - htop
-  - ncdu
-  - curl
-  - wget
-  - rsync
-  - unzip
-  - git
-  - tmux
+  - acl
+  - bash-completion
   - bats
+  - ca-certificates
+  - curl
   - default-jdk-headless
-  - python3
-  - python3-pip
+  - git
+  - gnupg
+  - golang
+  - htop
+  - locales
+  - lsof
+  - mkcert
+  - ncdu
   - nodejs
   - npm
-  - golang
-  - mkcert
-  - screen
-  - lsof
-  - traceroute
   - openssh-server
+  - python3
+  - python3-pip
+  - qemu-guest-agent
+  - rsync
+  - screen
   - sudo
-  - ca-certificates
-  - gnupg
-  - bash-completion
-  - locales
+  - tmux
+  - traceroute
+  - unzip
+  - vim
+  - wget
