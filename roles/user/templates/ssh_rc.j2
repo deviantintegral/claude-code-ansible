@@ -1,4 +1,6 @@
 #!/bin/bash
+# NOTE: if the symlink goes stale on reconnection, remove the `! -S` guard
+# below so the symlink is always updated: if [ -S "$SSH_AUTH_SOCK" ]; then
 if [ ! -S ~/.ssh/ssh_auth_sock ] && [ -S "$SSH_AUTH_SOCK" ]; then
     ln -sf $SSH_AUTH_SOCK ~/.ssh/ssh_auth_sock
 fi
