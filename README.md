@@ -26,6 +26,27 @@ Ansible playbook to provision a Debian 13 (trixie) VM as a Claude Code developme
    ansible-playbook -i inventory site.yml
    ```
 
+## Running the Playbook Directly on the Target Host
+
+If you are running the playbook on the same machine you want to provision (i.e. no SSH hop), use Ansible's local connection mode. This is useful when bootstrapping the VM from within a post-install script or when SSH is not available.
+
+1. Install Ansible on the target host:
+   ```bash
+   apt install ansible
+   ```
+
+2. Copy the example variables file and fill in your details:
+   ```bash
+   cp group_vars/all.yml.example group_vars/all.yml
+   ```
+
+3. Run the playbook with a local inventory and `--connection=local`:
+   ```bash
+   ansible-playbook -i localhost, --connection=local site.yml
+   ```
+
+   The trailing comma after `localhost` tells Ansible to treat the value as an inline inventory rather than a file path.
+
 ## What It Does
 
 - Sets hostname to `claude.lan` (configurable)
