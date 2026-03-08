@@ -32,3 +32,13 @@
   become_user: "{{ user_name }}"
   args:
     creates: "{{ user_home }}/.local/bin/claude"
+
+- name: Add ~/.local/bin to PATH in ~/.bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ user_home }}/.bashrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    regexp: '(^|^export )PATH=.*\.local/bin'
+    create: true
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0644"
