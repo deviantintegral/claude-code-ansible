@@ -52,9 +52,36 @@ If you are running the playbook on the same machine you want to provision (i.e. 
 - Sets hostname to `claude.lan` (configurable)
 - Creates a user (default: `claude`) with passwordless sudo and SSH key access
 - Installs development tools: Docker CE, ddev, Node.js, Go, Python 3, uv, mkcert, Java, and CLI utilities
+- Installs the [GitHub CLI (`gh`)](https://cli.github.com/) and configures it as the git credential helper for HTTPS authentication
 - Installs Claude Code CLI configured for autonomous operation
 - Optionally configures a Docker registry proxy for caching pulls
 - Deploys tmux, git, and bashrc configurations
+
+## GitHub Authentication
+
+The playbook installs `gh` and configures it as the git credential helper so that `git push` and `git pull` over HTTPS work automatically using a GitHub Personal Access Token (PAT).
+
+### Configuring a token during provisioning
+
+Set the `user_github_pat` variable in `group_vars/all.yml` or pass it on the command line:
+
+```bash
+ansible-playbook -i inventory site.yml --extra-vars "user_github_pat=ghp_xxxx"
+```
+
+The token is passed to `gh auth login --with-token` and stored in `~/.config/gh/hosts.yml` on the VM.
+
+### Changing the token after deployment
+
+SSH into the VM and run one of:
+
+```bash
+# Non-interactively (recommended for automation):
+echo "ghp_NEW_TOKEN" | gh auth login --with-token
+
+# Interactively (browser or manual paste):
+gh auth login
+```
 
 ## Security Model
 
@@ -80,6 +107,7 @@ Copy `group_vars/all.yml.example` to `group_vars/all.yml` and edit, or override 
 | `user_git_user_email` | `you@example.com` | Git user.email (default) |
 | `user_git_lullabot_email` | `you@example.com` | Git email for ~/lullabot/ repos |
 | `user_github_keys_url` | `https://github.com/your-username.keys` | SSH authorized_keys source |
+| `user_github_pat` | _(empty)_ | GitHub Personal Access Token for HTTPS git auth via `gh` |
 | `devtools_docker_registry_proxy_host` | `docker-registry-proxy.example` | Docker registry proxy hostname |
 | `devtools_docker_registry_proxy_port` | `3128` | Docker registry proxy port |
 
