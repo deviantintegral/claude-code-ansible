@@ -1,7 +1,16 @@
 ---
+- name: Get home directory for {{ user_name }}
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ user_name }}"
+
+- name: Set user home directory fact
+  ansible.builtin.set_fact:
+    user_home: "{{ ansible_facts.getent_passwd[user_name][4] }}"
+
 - name: Create ~/.claude directory
   ansible.builtin.file:
-    path: "/home/{{ user_name }}/.claude"
+    path: "{{ user_home }}/.claude"
     state: directory
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
@@ -10,7 +19,7 @@
 - name: Deploy ~/.claude/settings.json from template
   ansible.builtin.template:
     src: claude-settings.json.j2
-    dest: "/home/{{ user_name }}/.claude/settings.json"
+    dest: "{{ user_home }}/.claude/settings.json"
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: "0644"
@@ -22,4 +31,4 @@
   become: true
   become_user: "{{ user_name }}"
   args:
-    creates: "/home/{{ user_name }}/.local/bin/claude"
+    creates: "{{ user_home }}/.local/bin/claude"
