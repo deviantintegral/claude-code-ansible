@@ -29,7 +29,7 @@ Ansible playbook to provision a Debian 13 (trixie) VM as a Claude Code developme
 ## What It Does
 
 - Sets hostname to `claude.lan` (configurable)
-- Creates a `claude` user with passwordless sudo and SSH key access
+- Creates a user (default: `claude`) with passwordless sudo and SSH key access
 - Installs development tools: Docker CE, ddev, Node.js, Go, Python 3, uv, mkcert, Java, and CLI utilities
 - Installs Claude Code CLI configured for autonomous operation
 - Optionally configures a Docker registry proxy for caching pulls
@@ -39,7 +39,7 @@ Ansible playbook to provision a Debian 13 (trixie) VM as a Claude Code developme
 
 This playbook creates a **disposable, single-purpose development VM** intended to be run by Claude Code as an autonomous coding agent. The security posture reflects this:
 
-- **Passwordless sudo** is enabled for the `claude` user. The VM is not intended to host multiple users or untrusted workloads.
+- **Passwordless sudo** is enabled for the configured user (default: `claude`). The VM is not intended to host multiple users or untrusted workloads.
 - **Claude Code runs with `--dangerously-skip-permissions`**, allowing it to operate without interactive approval prompts. This is appropriate because the VM is ephemeral and isolated — it can be torn down and reprovisioned at any time.
 - **A random password** is generated on each provision for SSH and Samba access. It is not stored persistently.
 
@@ -51,6 +51,7 @@ Copy `group_vars/all.yml.example` to `group_vars/all.yml` and edit, or override 
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `user_name` | `claude` | Username for the primary system account |
 | `base_hostname` | `claude` | VM hostname |
 | `base_domain` | `lan` | Domain suffix (FQDN = hostname.domain) |
 | `base_locale` | `en_CA.UTF-8` | System locale |

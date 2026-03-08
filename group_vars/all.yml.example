@@ -1,3 +1,4 @@
+user_name: claude
 base_hostname: claude
 base_domain: lan
 base_locale: en_CA.UTF-8

@@ -7,4 +7,4 @@ devtools_docker_packages:
   - docker-compose-plugin
 devtools_docker_registry_proxy_host: "docker-registry-proxy.example"
 devtools_docker_registry_proxy_port: 3128
-devtools_user_name: claude
+devtools_user_name: "{{ user_name }}"
