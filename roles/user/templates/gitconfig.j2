@@ -3,5 +3,7 @@
 	email = {{ user_git_user_email }}
 [push]
 	autoSetupRemote = true
+[credential]
+	helper = !/usr/bin/gh auth git-credential
 [includeIf "gitdir:~/lullabot/"]
 	path = ~/.gitconfig-lullabot
