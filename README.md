@@ -47,6 +47,8 @@ If you are running the playbook on the same machine you want to provision (i.e. 
 
    The trailing comma after `localhost` tells Ansible to treat the value as an inline inventory rather than a file path.
 
+   When done, run `source ~/.bashrc` or create a new shell to get updated PATH settings.
+
 ### Running with lima-vm
 
 ```console
