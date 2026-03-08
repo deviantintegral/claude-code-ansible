@@ -47,6 +47,14 @@ If you are running the playbook on the same machine you want to provision (i.e. 
 
    The trailing comma after `localhost` tells Ansible to treat the value as an inline inventory rather than a file path.
 
+### Running with lima-vm
+
+```console
+$ limactl create --name claude --cpus=8 --memory=32 template:debian-13
+```
+
+**It is highly recommended** to edit or disable the default mount of your home directory. Otherwise, nothing will stop Claude from making changes there.
+
 ## What It Does
 
 - Sets hostname to `claude.lan` (configurable)
