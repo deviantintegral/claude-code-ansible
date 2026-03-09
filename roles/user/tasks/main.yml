@@ -82,6 +82,24 @@
     group: "{{ user_name }}"
     mode: "0755"
 
+- name: Ensure ~/.config/direnv directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/direnv"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0755"
+
+- name: Deploy ~/.config/direnv/direnv.toml
+  ansible.builtin.copy:
+    content: |
+      [global]
+      load_dotenv = true
+    dest: "{{ user_home }}/.config/direnv/direnv.toml"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "0644"
+
 - name: Deploy bashrc customizations
   ansible.builtin.blockinfile:
     path: "{{ user_home }}/.bashrc"

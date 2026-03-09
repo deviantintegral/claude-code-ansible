@@ -95,33 +95,39 @@ gh auth login
 
 ### Per-directory GitHub tokens with direnv
 
-direnv is installed on the VM and hooked into bash. It lets you set environment variables automatically when you enter a directory, which is useful for per-project GitHub tokens.
+direnv is installed on the VM and hooked into bash. It lets you set environment variables automatically when you enter a directory, which is useful for per-project GitHub tokens. Both `.envrc` and `.env` files are supported (`.envrc` takes precedence if both exist).
 
-To use a different token for a specific project directory, create a `.envrc` file:
+To use a different token for a specific project directory, create a `.envrc` or `.env` file:
 
 ```bash
 cd ~/projects/client-a
+
+# Option 1: .envrc (shell script — supports any bash syntax)
 echo 'export GH_TOKEN=github_pat_xxxx' > .envrc
+
+# Option 2: .env (simple KEY=VALUE format — no `export` needed)
+echo 'GH_TOKEN=github_pat_xxxx' > .env
+
 direnv allow
 ```
 
-`direnv allow` is required each time you create or modify a `.envrc` file. This is a security feature — direnv will not load unapproved files, preventing untrusted repositories from injecting environment variables.
+`direnv allow` is required each time you create or modify a `.envrc` or `.env` file. This is a security feature — direnv will not load unapproved files, preventing untrusted repositories from injecting environment variables.
 
 When you `cd` into the directory, `GH_TOKEN` is set automatically. When you leave, it is unloaded. `GH_TOKEN` takes precedence over the credential stored by `gh auth login`, so per-directory tokens override the default without conflicting with it.
 
 Example with two project directories using different tokens:
 
 ```bash
-# ~/projects/client-a/.envrc
-export GH_TOKEN=github_pat_aaaa_clientA
+# ~/projects/client-a/.env
+GH_TOKEN=github_pat_aaaa_clientA
 
-# ~/projects/client-b/.envrc
-export GH_TOKEN=github_pat_bbbb_clientB
+# ~/projects/client-b/.env
+GH_TOKEN=github_pat_bbbb_clientB
 ```
 
 After running `direnv allow` in each directory, switching between them automatically swaps the active token.
 
-Add `.envrc` to `.gitignore` in your project repos to avoid committing tokens.
+Add `.envrc` and `.env` to `.gitignore` in your project repos to avoid committing tokens.
 
 ### Recommended: Fine-grained Personal Access Tokens
 
