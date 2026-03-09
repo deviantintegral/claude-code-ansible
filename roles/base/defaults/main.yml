@@ -7,6 +7,7 @@ base_packages:
   - bats
   - ca-certificates
   - curl
+  - direnv
   - default-jdk-headless
   - git
   - gnupg

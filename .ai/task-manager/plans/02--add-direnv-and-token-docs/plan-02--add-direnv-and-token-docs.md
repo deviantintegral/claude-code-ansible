@@ -114,8 +114,37 @@ The existing `user_github_pat` / `gh auth login` provisioning flow is unchanged.
 
 This coexistence requires no code changes to the existing roles — just the addition of the direnv package and bash hook.
 
+## Execution Blueprint
+
+### Dependency Diagram
+
+```mermaid
+graph TD
+    001[Task 01: Add direnv to playbook]
+    002[Task 02: Update README with direnv and token docs]
+```
+
+No dependencies between tasks — both can run in parallel.
+
+**Validation Gates:**
+- Reference: `/config/hooks/POST_PHASE.md`
+
+### Phase 1: Implementation
+**Parallel Tasks:**
+- Task 01: Add direnv to Ansible playbook (ansible role edits)
+- Task 02: Update README with direnv usage and fine-grained token recommendations (documentation)
+
+### Post-phase Actions
+
+### Execution Summary
+- Total Phases: 1
+- Total Tasks: 2
+- Maximum Parallelism: 2 tasks (in Phase 1)
+- Critical Path Length: 1 phase
+
 ## Notes
 
 ### Change Log
 - 2026-03-09: Initial plan created
 - 2026-03-09: Refined — clarified gh auth/GH_TOKEN coexistence, added direnv allow security model details, specified README section placement, added malicious .envrc risk, added Integration Strategy section
+- 2026-03-09: Tasks generated and execution blueprint added

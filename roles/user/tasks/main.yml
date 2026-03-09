@@ -92,6 +92,7 @@
       alias claude="claude --dangerously-skip-permissions"
       export VISUAL=vim
       export EDITOR=vim
+      eval "$(direnv hook bash)"
 
 - name: Display generated password for {{ user_name }}
   ansible.builtin.debug:

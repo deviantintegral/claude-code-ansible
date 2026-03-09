@@ -93,6 +93,57 @@ echo "ghp_NEW_TOKEN" | gh auth login --with-token
 gh auth login
 ```
 
+### Per-directory GitHub tokens with direnv
+
+direnv is installed on the VM and hooked into bash. It lets you set environment variables automatically when you enter a directory, which is useful for per-project GitHub tokens.
+
+To use a different token for a specific project directory, create a `.envrc` file:
+
+```bash
+cd ~/projects/client-a
+echo 'export GH_TOKEN=github_pat_xxxx' > .envrc
+direnv allow
+```
+
+`direnv allow` is required each time you create or modify a `.envrc` file. This is a security feature — direnv will not load unapproved files, preventing untrusted repositories from injecting environment variables.
+
+When you `cd` into the directory, `GH_TOKEN` is set automatically. When you leave, it is unloaded. `GH_TOKEN` takes precedence over the credential stored by `gh auth login`, so per-directory tokens override the default without conflicting with it.
+
+Example with two project directories using different tokens:
+
+```bash
+# ~/projects/client-a/.envrc
+export GH_TOKEN=github_pat_aaaa_clientA
+
+# ~/projects/client-b/.envrc
+export GH_TOKEN=github_pat_bbbb_clientB
+```
+
+After running `direnv allow` in each directory, switching between them automatically swaps the active token.
+
+Add `.envrc` to `.gitignore` in your project repos to avoid committing tokens.
+
+### Recommended: Fine-grained Personal Access Tokens
+
+Fine-grained PATs are recommended over classic PATs. They offer several advantages:
+
+- **Scoped to specific repositories** — a token can only access the repos you choose
+- **Granular permissions** — grant only the access each project needs
+- **Mandatory expiration dates** — tokens cannot be created without an expiry
+
+Create them at: **Settings > Developer settings > Personal access tokens > Fine-grained tokens**.
+
+Commonly needed permissions:
+
+| Permission | Access | Purpose |
+|------------|--------|---------|
+| Contents | Read and write | Push and pull code |
+| Pull requests | Read and write | Create and manage PRs |
+| Issues | Read and write | Create and manage issues (if needed) |
+| Metadata | Read-only | Always required (automatically included) |
+
+For the best security posture, create a separate fine-grained token per project or client and pair it with direnv so each project directory uses its own scoped token.
+
 ## Security Model
 
 This playbook creates a **disposable, single-purpose development VM** intended to be run by Claude Code as an autonomous coding agent. The security posture reflects this:
@@ -117,7 +168,7 @@ Copy `group_vars/all.yml.example` to `group_vars/all.yml` and edit, or override 
 | `user_git_user_email` | `you@example.com` | Git user.email (default) |
 | `user_git_lullabot_email` | `you@example.com` | Git email for ~/lullabot/ repos |
 | `user_github_keys_url` | `https://github.com/your-username.keys` | SSH authorized_keys source |
-| `user_github_pat` | _(empty)_ | GitHub Personal Access Token for HTTPS git auth via `gh` |
+| `user_github_pat` | _(empty)_ | GitHub Personal Access Token for HTTPS git auth via `gh` (fine-grained PATs recommended) |
 | `devtools_docker_registry_proxy_host` | `docker-registry-proxy.example` | Docker registry proxy hostname |
 | `devtools_docker_registry_proxy_port` | `3128` | Docker registry proxy port |
 
