@@ -1,6 +1,7 @@
 base_hostname: claude
 base_domain: lan
 base_locale: en_CA.UTF-8
+base_nodejs_major_version: 24
 base_packages:
   - acl
   - bash-completion
@@ -18,8 +19,6 @@ base_packages:
   - lsof
   - mkcert
   - ncdu
-  - nodejs
-  - npm
   - openssh-server
   - python3
   - python3-pip
