@@ -13,6 +13,7 @@ base_packages:
   - gnupg
   - golang
   - htop
+  - jq
   - locales
   - lsof
   - mkcert
@@ -31,3 +32,4 @@ base_packages:
   - unzip
   - vim
   - wget
+  - yq
