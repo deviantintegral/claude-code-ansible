@@ -69,65 +69,63 @@ $ limactl create --name claude --cpus=8 --memory=32 template:debian-13
 
 ## GitHub Authentication
 
-The playbook installs `gh` and configures it as the git credential helper so that `git push` and `git pull` over HTTPS work automatically using a GitHub Personal Access Token (PAT).
+The playbook installs `gh` and configures it as the git credential helper so that `git push` and `git pull` over HTTPS work automatically. GitHub tokens are managed per-organization using direnv and the `github-org-setup` script.
 
-### Configuring a token during provisioning
+### How it works
 
-Set the `user_github_pat` variable in `group_vars/all.yml` or pass it on the command line:
+Each GitHub organization gets its own directory under `~/github.com/<org>/`. Inside that directory:
 
-```bash
-ansible-playbook -i inventory site.yml --extra-vars "user_github_pat=ghp_xxxx"
-```
+- A `.env` file sets `GH_TOKEN` for that org's repositories (loaded automatically by direnv)
+- A `.gitconfig-<org>` file sets the git commit email for that org
+- A gitconfig `includeIf` entry activates the per-org email when working in that directory
 
-The token is passed to `gh auth login --with-token` and stored in `~/.config/gh/hosts.yml` on the VM.
+When you `cd` into `~/github.com/<org>/` (or any subdirectory), direnv loads the `.env` file and `GH_TOKEN` is set automatically. When you leave, it is unloaded. `GH_TOKEN` takes precedence over the credential stored by `gh auth login`, so per-org tokens work without conflicting with any default token.
 
-### Changing the token after deployment
+### Setting up an organization during provisioning
 
-SSH into the VM and run one of:
-
-```bash
-# Non-interactively (recommended for automation):
-echo "ghp_NEW_TOKEN" | gh auth login --with-token
-
-# Interactively (browser or manual paste):
-gh auth login
-```
-
-### Per-directory GitHub tokens with direnv
-
-direnv is installed on the VM and hooked into bash. It lets you set environment variables automatically when you enter a directory, which is useful for per-project GitHub tokens. Both `.envrc` and `.env` files are supported (`.envrc` takes precedence if both exist).
-
-To use a different token for a specific project directory, create a `.envrc` or `.env` file:
+Set the org variables in `group_vars/all.yml` or pass them on the command line:
 
 ```bash
-cd ~/projects/client-a
-
-# Option 1: .envrc (shell script — supports any bash syntax)
-echo 'export GH_TOKEN=github_pat_xxxx' > .envrc
-
-# Option 2: .env (simple KEY=VALUE format — no `export` needed)
-echo 'GH_TOKEN=github_pat_xxxx' > .env
-
-direnv allow
+ansible-playbook -i inventory site.yml \
+  --extra-vars "user_github_org=my-org user_github_org_email=me@my-org.com user_github_org_token=ghp_xxxx"
 ```
 
-`direnv allow` is required each time you create or modify a `.envrc` or `.env` file. This is a security feature — direnv will not load unapproved files, preventing untrusted repositories from injecting environment variables.
+The playbook runs `github-org-setup` non-interactively to create the directory, token, email config, and direnv approval.
 
-When you `cd` into the directory, `GH_TOKEN` is set automatically. When you leave, it is unloaded. `GH_TOKEN` takes precedence over the credential stored by `gh auth login`, so per-directory tokens override the default without conflicting with it.
+### Adding or updating organizations after deployment
 
-Example with two project directories using different tokens:
+SSH into the VM and run `github-org-setup`:
 
 ```bash
-# ~/projects/client-a/.env
-GH_TOKEN=github_pat_aaaa_clientA
+# Interactive mode — prompts for org, email, and token:
+github-org-setup
 
-# ~/projects/client-b/.env
-GH_TOKEN=github_pat_bbbb_clientB
+# Non-interactive mode — org and email as flags, token via stdin:
+echo "ghp_xxxx" | github-org-setup --org my-org --email me@my-org.com
 ```
 
-After running `direnv allow` in each directory, switching between them automatically swaps the active token.
+Running the script again for an existing org overwrites the token and email configuration.
 
-Add `.envrc` and `.env` to `.gitignore` in your project repos to avoid committing tokens.
+### Multiple organizations
+
+You can set up as many organizations as you need. Each gets its own isolated directory and token:
+
+```bash
+github-org-setup   # set up lullabot
+github-org-setup   # set up personal
+```
+
+This creates:
+
+```
+~/github.com/
+  lullabot/
+    .env           # GH_TOKEN for lullabot repos
+  personal/
+    .env           # GH_TOKEN for personal repos
+```
+
+Switching between directories automatically swaps the active token and git commit email.
 
 ### Recommended: Fine-grained Personal Access Tokens
 
@@ -148,7 +146,7 @@ Commonly needed permissions:
 | Issues | Read and write | Create and manage issues (if needed) |
 | Metadata | Read-only | Always required (automatically included) |
 
-For the best security posture, create a separate fine-grained token per project or client and pair it with direnv so each project directory uses its own scoped token.
+For the best security posture, create a separate fine-grained token per organization or client.
 
 ## Security Model
 
@@ -172,9 +170,10 @@ Copy `group_vars/all.yml.example` to `group_vars/all.yml` and edit, or override 
 | `base_locale` | `en_CA.UTF-8` | System locale |
 | `user_git_user_name` | `Your Name` | Git user.name |
 | `user_git_user_email` | `you@example.com` | Git user.email (default) |
-| `user_git_lullabot_email` | `you@example.com` | Git email for ~/lullabot/ repos |
 | `user_github_keys_url` | `https://github.com/your-username.keys` | SSH authorized_keys source |
-| `user_github_pat` | _(empty)_ | GitHub Personal Access Token for HTTPS git auth via `gh` (fine-grained PATs recommended) |
+| `user_github_org` | _(empty)_ | GitHub organization name for initial setup (e.g. `lullabot`) |
+| `user_github_org_email` | _(empty)_ | Git commit email for the initial org |
+| `user_github_org_token` | _(empty)_ | GitHub PAT for the initial org (fine-grained PATs recommended) |
 | `devtools_docker_registry_proxy_host` | `docker-registry-proxy.example` | Docker registry proxy hostname |
 | `devtools_docker_registry_proxy_port` | `3128` | Docker registry proxy port |
 

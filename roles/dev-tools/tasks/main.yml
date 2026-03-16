@@ -126,16 +126,6 @@
     state: present
     update_cache: true
 
-- name: Configure GitHub personal access token
-  ansible.builtin.command:
-    cmd: gh auth login --with-token
-    stdin: "{{ user_github_pat }}"
-  become: true
-  become_user: "{{ devtools_user_name }}"
-  when: user_github_pat | length > 0
-  no_log: true
-  changed_when: false
-
 # uv
 - name: Install uv
   ansible.builtin.shell:
