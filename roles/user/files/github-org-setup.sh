@@ -97,12 +97,8 @@ if ! grep -qF "$include_pattern" "$gitconfig_main" 2>/dev/null; then
 EOF
 fi
 
-# 5. Allow direnv for the org directory
-direnv allow "$org_dir"
-
 echo "Done! Set up GitHub org '$org':"
 echo "  Directory:  $org_dir"
 echo "  .env:       $env_file (GH_TOKEN, mode 0600)"
 echo "  Git config: $gitconfig_org (email: $email)"
 echo "  includeIf:  added to $gitconfig_main"
-echo "  direnv:     allowed for $org_dir"
