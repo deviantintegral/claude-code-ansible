@@ -174,6 +174,7 @@ Copy `group_vars/all.yml.example` to `group_vars/all.yml` and edit, or override 
 | `user_github_org` | _(empty)_ | GitHub organization name for initial setup (e.g. `lullabot`) |
 | `user_github_org_email` | _(empty)_ | Git commit email for the initial org |
 | `user_github_org_token` | _(empty)_ | GitHub PAT for the initial org (fine-grained PATs recommended) |
+| `devtools_docker_registry_proxy_enabled` | `false` | Enable Docker registry proxy |
 | `devtools_docker_registry_proxy_host` | `docker-registry-proxy.example` | Docker registry proxy hostname |
 | `devtools_docker_registry_proxy_port` | `3128` | Docker registry proxy port |
 
