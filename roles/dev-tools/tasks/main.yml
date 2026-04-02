@@ -152,12 +152,14 @@
     dest: /usr/local/share/ca-certificates/docker_registry_proxy.crt
     mode: "0644"
   notify: Update CA certificates
+  when: devtools_docker_registry_proxy_enabled
 
 - name: Ensure Docker systemd override directory exists
   ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d/
     state: directory
     mode: "0755"
+  when: devtools_docker_registry_proxy_enabled
 
 - name: Deploy Docker proxy configuration
   ansible.builtin.template:
@@ -167,3 +169,4 @@
     group: root
     mode: "0644"
   notify: Reload systemd
+  when: devtools_docker_registry_proxy_enabled
