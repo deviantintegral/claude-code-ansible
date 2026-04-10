@@ -8,24 +8,6 @@ Ansible playbook to provision a Debian 13 (trixie) VM as a Claude Code developme
 - Ansible installed on the control machine (`apt install ansible`)
 - SSH key access to the target VM's root user
 
-## Quick Start
-
-1. Copy the example variables file and fill in your details:
-   ```bash
-   cp group_vars/all.yml.example group_vars/all.yml
-   ```
-   Edit `group_vars/all.yml` with your Git identity, GitHub username, and network settings.
-
-2. Edit `inventory` and replace `CHANGE_ME` with the target VM's IP address:
-   ```
-   claude.example ansible_host=192.168.1.100 ansible_user=debian
-   ```
-
-3. Run the playbook:
-   ```bash
-   ansible-playbook -i inventory site.yml
-   ```
-
 ## Running the Playbook Directly on the Target Host
 
 If you are running the playbook on the same machine you want to provision (i.e. no SSH hop), use Ansible's local connection mode. This is useful when bootstrapping the VM from within a post-install script or when SSH is not available.
@@ -49,6 +31,24 @@ If you are running the playbook on the same machine you want to provision (i.e. 
 
    When done, run `source ~/.bashrc` or create a new shell to get updated PATH settings.
 
+## Running against a remote host
+
+1. Copy the example variables file and fill in your details:
+   ```bash
+   cp group_vars/all.yml.example group_vars/all.yml
+   ```
+   Edit `group_vars/all.yml` with your Git identity, GitHub username, and network settings.
+
+2. Edit `inventory` and replace `CHANGE_ME` with the target VM's IP address:
+   ```
+   claude.example ansible_host=192.168.1.100 ansible_user=debian
+   ```
+
+3. Run the playbook:
+   ```bash
+   ansible-playbook -i inventory site.yml
+   ```
+   
 ### Running with lima-vm
 
 ```console
