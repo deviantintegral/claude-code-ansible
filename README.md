@@ -183,7 +183,9 @@ Copy `group_vars/all.yml.example` to `group_vars/all.yml` and edit, or override 
 
 ### Headless Claude Code authentication (optional)
 
-On a fresh VM, Claude Code normally launches a browser flow the first time you run `claude`. To skip this and pre-provision the credential, generate a long-lived OAuth token on an interactive machine and pass it to the playbook:
+By default the playbook does **not** provision a Claude Code credential — after provisioning you can SSH in and run `claude` to complete the normal interactive browser login, and `claude_code_oauth_token` can be left unset.
+
+If you'd rather skip the interactive login (e.g. for fully unattended provisioning or CI), generate a long-lived OAuth token on an interactive machine and pass it to the playbook:
 
 1. On any machine where you're already logged into Claude Code, run:
 
