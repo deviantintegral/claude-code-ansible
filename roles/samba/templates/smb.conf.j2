@@ -7,6 +7,38 @@
    logging = file
    map to guest = never
 
+   # macOS interoperability and performance tuning.
+   #
+   # Without vfs_fruit, macOS stores file metadata (resource forks, Finder
+   # info, xattrs) in sidecar "._filename" AppleDouble files. For trees with
+   # many small files this is catastrophic for copy performance — every file
+   # becomes two round-trips, and the sidecars bloat the directory. vfs_fruit
+   # transparently redirects that metadata into SMB alternate data streams
+   # (stored as xattrs via streams_xattr), eliminating the sidecars.
+   #
+   # See: https://wiki.samba.org/index.php/Configure_Samba_to_Work_Better_with_Mac_OS_X
+   #
+   # Notes:
+   # - `vfs objects` is inherited by shares that don't set it themselves;
+   #   any share that overrides `vfs objects` must repeat this list.
+   # - `fruit:metadata = stream` is the recommended default for new
+   #   deployments. Do NOT switch an existing share between `stream` and
+   #   `netatalk` after data has been written — existing metadata will be
+   #   orphaned.
+   # - `fruit:nfs_aces = no` prevents macOS from rewriting UNIX permissions
+   #   via NFS ACEs, which otherwise surprises server-side tools.
+   min protocol = SMB2
+   ea support = yes
+   vfs objects = catia fruit streams_xattr
+   fruit:metadata = stream
+   fruit:model = MacSamba
+   fruit:veto_appledouble = no
+   fruit:posix_rename = yes
+   fruit:zero_file_id = yes
+   fruit:wipe_intentionally_left_blank_rfork = yes
+   fruit:delete_empty_adfiles = yes
+   fruit:nfs_aces = no
+
 [homes]
    comment = Home Directories
    browseable = no
