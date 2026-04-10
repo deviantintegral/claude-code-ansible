@@ -202,7 +202,7 @@ If you'd rather skip the interactive login (e.g. for fully unattended provisioni
      --extra-vars "claude_code_oauth_token=sk-ant-oat01-..."
    ```
 
-   The token is written to `~/.claude/claude-code.env` with mode `0600` and sourced from `~/.bashrc`, so every new shell exports `CLAUDE_CODE_OAUTH_TOKEN` and Claude Code authenticates without a browser round-trip.
+   The token is written to `~/.claude/claude-code.env` with mode `0600` and sourced from `~/.bashrc`, so every new shell exports `CLAUDE_CODE_OAUTH_TOKEN` and Claude Code authenticates without a browser round-trip. The playbook also pre-seeds `~/.claude.json` with `hasCompletedOnboarding: true` so the first `claude` invocation skips the theme / trust / login flow entirely.
 
 Notes:
 
