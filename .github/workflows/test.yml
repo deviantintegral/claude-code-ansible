@@ -11,9 +11,11 @@ name: test
 #                the Mac `vz` driver is intentionally not covered; the driver is
 #                Lima's concern, not this repo's.
 
+# push only on main (post-merge); feature branches run once via pull_request,
+# not twice from a matching push event.
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
